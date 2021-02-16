@@ -1,0 +1,18 @@
+resilience4j:
+  ratelimiter:
+    configs:
+      default:
+        limitForPeriod: 7
+        limitRefreshPeriod: 60s
+        timeoutDuration: 3s # Buffer time that particular thread will keep retrying request till that much time
+    instances:
+      backendService:
+        baseConfig: default
+      downStreamService:
+        limitForPeriod: 3
+        limitRefreshPeriod: 30s
+        timeoutDuration: 0
+      downStreamServiceFeign:
+        limitForPeriod: 5
+        limitRefreshPeriod: 30s
+        timeoutDuration: 0

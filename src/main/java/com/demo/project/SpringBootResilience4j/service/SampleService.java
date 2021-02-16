@@ -2,6 +2,7 @@ package com.demo.project.SpringBootResilience4j.service;
 
 
 import com.demo.project.SpringBootResilience4j.model.User;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.Map;
 public class SampleService {
 
     private HashMap<Integer, String> userIdToName;
+    private final String DOWNSTREAM_SERVICE = "downStreamService";
 
     public SampleService() {
         this.userIdToName = new HashMap<>();
@@ -34,18 +36,21 @@ public class SampleService {
         return userIdToName.getOrDefault(id, "Id not present");
     }
 
+    @RateLimiter(name = DOWNSTREAM_SERVICE, fallbackMethod = "tooManyBackendGetCalls")
     public String getEmailById(int id) {
         sendDummyGetRequest();
         return "email";
     }
 
+    // Remember Rate Limiter will only work on first method call of the class not subsequent method calls in that class
+    @RateLimiter(name = DOWNSTREAM_SERVICE, fallbackMethod = "tooManyBackendPostCalls")
     public User saveUser(User user) {
         log.info("Saving user : {}", user.toString());
         sendDummyPostRequest();
         return user;
     }
 
-    private void sendDummyGetRequest() {
+    private String sendDummyGetRequest() {
         log.info("Sending Dummy Get Request");
         final RestTemplate restTemplate = new RestTemplate();
         final HttpHeaders headers = new HttpHeaders();
@@ -70,6 +75,7 @@ public class SampleService {
         ResponseEntity<String> responseEntity = restTemplate.exchange(uriBuilder.toUriString(), HttpMethod.GET, entity, String.class);
         String res = responseEntity.getBody();
         log.info("Received response: {}", res);
+        return res;
     }
 
     private void sendDummyPostRequest() {
@@ -93,4 +99,14 @@ public class SampleService {
         log.info("Received response: {}", res.toString());
     }
 
+
+    public User tooManyBackendPostCalls(User user, Exception e) {
+        log.info("Too many calls at backend post calls");
+        return null;
+    }
+
+    public String tooManyBackendGetCalls(int id, Exception e) {
+        log.info("Too many calls at backend get calls");
+        return null;
+    }
 }
