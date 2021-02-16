@@ -21,4 +21,10 @@ public class SampleFeignServiceImpl implements SampleFeignService {
         return user;
     }
 
+    @Override
+    public String getEmailById(int id) {
+        log.info("Getting user through feign : {}", id);
+        serviceEndPointFeignClient.dummyGet("joy", 3);
+        return "email";
+    }
 }

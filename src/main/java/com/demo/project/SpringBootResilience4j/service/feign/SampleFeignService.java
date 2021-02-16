@@ -4,4 +4,5 @@ import com.demo.project.SpringBootResilience4j.model.User;
 
 public interface SampleFeignService {
     User saveUser(User user);
+    String getEmailById(int id);
 }

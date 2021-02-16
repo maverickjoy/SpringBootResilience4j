@@ -5,6 +5,9 @@ import com.demo.project.SpringBootResilience4j.service.SampleService;
 import com.demo.project.SpringBootResilience4j.service.feign.SampleFeignService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -29,22 +32,28 @@ public class SampleController {
     }
 
     @PostMapping(value = "/saveUser")
-    public Boolean saveUser(@RequestBody User user) {
+    public ResponseEntity saveUser(@RequestBody User user) {
         sampleService.saveUser(user);
-        return true;
+        return new ResponseEntity<User>(user, HttpStatus.OK);
     }
 
     @GetMapping(value = "/getEmailById")
-    public String getEmail(@RequestParam int id) {
-        return sampleService.getEmailById(id);
+    public ResponseEntity getEmail(@RequestParam int id) {
+        return ResponseEntity.ok().body(sampleService.getEmailById(id));
     }
 
+    @GetMapping(value = "/getEmailByIdFeign")
+    public ResponseEntity getEmailByIdFeign(@RequestParam int id) {
+        return ResponseEntity.ok().body(sampleService.getEmailById(id));
+    }
 
     @PostMapping(value = "/saveUserFeign")
-    public Boolean saveUserFeign(@RequestBody User user) {
+    public ResponseEntity saveUserFeign(@RequestBody User user) {
         sampleFeignService.saveUser(user);
-        return true;
+        return new ResponseEntity<User>(user, HttpStatus.OK);
     }
+
+    // ---------------------- Internal Usages ----------------------------
 
     @PostMapping(value = "/dummyPost")
     public User  dummyPost(@RequestBody User user) {
@@ -61,4 +70,16 @@ public class SampleController {
         log.info("Dummy Post End Point Called with following name {} and id {}", name, id);
         return name;
     }
+
+//    public ResponseEntity tooManyCalls(String name, io.github.resilience4j.ratelimiter.RequestNotPermitted ex) {
+//        System.out.println("Rate limit applied no further calls are accepted");
+//
+//        HttpHeaders responseHeaders = new HttpHeaders();
+//        responseHeaders.set("Retry-After", "1"); //retry after one second
+//
+//        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+//                .headers(responseHeaders) //send retry header
+//                .body("Too many request - No further calls are accepted");
+//    }
+
 }
