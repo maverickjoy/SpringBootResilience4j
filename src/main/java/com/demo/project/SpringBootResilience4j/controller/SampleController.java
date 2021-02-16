@@ -2,6 +2,7 @@ package com.demo.project.SpringBootResilience4j.controller;
 
 import com.demo.project.SpringBootResilience4j.model.User;
 import com.demo.project.SpringBootResilience4j.service.SampleService;
+import com.demo.project.SpringBootResilience4j.service.feign.SampleFeignService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -14,8 +15,8 @@ public class SampleController {
     @Autowired
     private SampleService sampleService;
 
-//    @Autowired
-//    private SampleFeignService sampleFeignService;
+    @Autowired
+    private SampleFeignService sampleFeignService;
 
     @GetMapping(value = "/getServiceName")
     public String getName() {
@@ -39,11 +40,11 @@ public class SampleController {
     }
 
 
-//    @PostMapping(value = "/saveUserFeign")
-//    public Boolean saveUserFeign(@RequestBody User user) {
-//        sampleFeignService.saveUser(user);
-//        return true;
-//    }
+    @PostMapping(value = "/saveUserFeign")
+    public Boolean saveUserFeign(@RequestBody User user) {
+        sampleFeignService.saveUser(user);
+        return true;
+    }
 
     @PostMapping(value = "/dummyPost")
     public User  dummyPost(@RequestBody User user) {
